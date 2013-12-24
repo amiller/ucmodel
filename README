@@ -1,0 +1,44 @@
+An implementation of the Universal Composability[1] execution model in
+python. 
+
+[1]. Universally Composabile Security: a new paradigm for
+cryptographic protocols. Ran Canetti, FOCS 2001
+http://eprint.iacr.org/2000/067.pdf
+
+The bare UC model is somewhat unusual among concurrency
+frameworks. Like the actor model[2], it concerns processes that
+communicate by sending messages designated with the recipient's unique
+identifier. However, unlike the process calculi[3] and the actor
+model, the sequence of execution is deterministically defined. A
+"send" instruction immediately transfers control to the receiving
+process. If a process suspends without sending any message, control is
+transferred to a designated "initial" process, which may pump the
+system by sending more messages on its own.
+
+How then is actual concurrency modeled? The UC framework is concerned
+with a particular family of systems, involving four kinds of
+processes: parties (ordinary nodes in a protocol), the Environment,
+the Adversary, and Ideal Functionalities. The Adversary is given the
+ability to send messages to every party, and the Environment (the
+initial process) gives control to the Adversary. Thus, in the UC
+framework, adversarially scheduling arises from an ordinary process in
+the system, rather than from non-determinism in the execution
+model. Ideal functionalities model fine-grained network primitives;
+since communications between parties and Ideal functionalities are
+synchronous, they may sidestep Adversarial control. This allows for
+expressing various fine-grained network qualities (like synchronous
+communications or eventual delivery) as systems within the model,
+rather than as modifications to the model.
+
+TODO: Security in the UC framework
+TODO: The "universal composition" theorem
+
+It would be possible to define framework using callbacks and an event
+loop directly; however it is much more convenient to define processes
+using a coroutine-like concurrency framework. We choose gevent for
+this purpose in python. Since gevent provides actual concurrency, we
+must use a signal mechanism so that only one process can be activated
+at any time, thereby achieving the deterministic activation order
+according to UC.
+
+

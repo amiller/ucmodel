@@ -22,15 +22,14 @@ class Process(object):
     def write(self, receiver, m):
         self.env[receiver].queue.append((self.name, m))
         self.env[receiver].signal.set()
-        self.signal.clear()
-        self.signal.wait()
+        self.suspend()
 
-def p1(read,write,output):
+def p1(suspend,read,write,output):
     write("p2","1")
     write("p2","2")
 
-def p2(read,write,output):
-    s,x = read()
+def p2(suspend,read,write,output):
+    s,x = read(); suspend()
     s,y = read()
     print "p2 received:", x, y, "from", s
     output(x)
@@ -42,7 +41,7 @@ def make_processes(names, procs):
         p = Process(n, env)
         env[n] = p
         def output(x): print "[%s] output: %s" % (n,x)
-        threads.append(gevent.spawn(f, p.read, p.write, output))
+        threads.append(gevent.spawn(f, p.suspend, p.read, p.write, output))
 
     while not threads[0].dead:
         gevent.wait()
